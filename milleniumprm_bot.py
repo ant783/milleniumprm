@@ -1,0 +1,52 @@
+import logging
+import requests
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+
+# --- CONFIG ---
+TELEGRAM_TOKEN = "8275812174:AAHGIrL3Uw8AN7TKdNAtUZYFTi0lQu1Ni-A"
+OPENWEATHER_API_KEY = "YOUR_OPENWEATHER_API_KEY"
+
+# --- LOGGING ---
+logging.basicConfig(level=logging.INFO)
+
+# --- WEATHER FUNCTION ---
+def get_weather(city: str):
+    url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_API_KEY}&units=metric&lang=ru"
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    data = r.json()
+    desc = data['weather'][0]['description']
+    temp = data['main']['temp']
+    feels = data['main']['feels_like']
+    return f"Погода в {city} — {desc}, {temp}°C (ощущается как {feels}°C)"
+
+# --- COMMAND HANDLERS ---
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Йоу! Напиши мне /w <город>, и я кину тебе прогноз.")
+
+async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.args:
+        await update.message.reply_text("Укажи город: /w Berlin")
+        return
+
+    city = " ".join(context.args)
+    info = get_weather(city)
+    if info:
+        await update.message.reply_text(info)
+    else:
+        await update.message.reply_text("Не смог найти такой город...")
+
+# --- MAIN ---
+def main():
+    app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
+
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("w", weather))
+
+    app.run_polling()
+
+
+if __name__ == "__main__":
+    main()
