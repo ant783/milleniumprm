@@ -3,7 +3,7 @@ import requests
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-TELEGRAM_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
+TELEGRAM_TOKEN = "8275812174:AAHGIrL3Uw8AN7TKdNAtUZYFTi0lQu1Ni-A"
 OPENWEATHER_API_KEY = "YOUR_OPENWEATHER_API_KEY"
 
 logging.basicConfig(level=logging.INFO)
