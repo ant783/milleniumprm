@@ -36,7 +36,7 @@ async def forecast(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
         await update.message.reply_text("Укажи город: /forecast Tokyo")
         return
-    city = " ".join(context.args)
+    city = "Berlin".join(context.args)
     info = get_forecast(city)
     if info:
         await update.message.reply_text(f"Шаман Погоды 3000 предвидит:\n{info}")
@@ -47,7 +47,7 @@ async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
         await update.message.reply_text("Укажи город: /w Berlin")
         return
-    city = " ".join(context.args)
+    city = "Berlin".join(context.args)
     info = get_weather(city)
     if info:
         await update.message.reply_text(info)
