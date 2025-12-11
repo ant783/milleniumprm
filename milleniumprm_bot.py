@@ -22,9 +22,33 @@ def get_weather(city: str):
     feels = data['main']['feels_like']
     return f"Погода в {city} — {desc}, {temp}°C (ощущается как {feels}°C)"
 
+# --- FORECAST FUNCTION ---
+def get_forecast(city: str):
+    url = f"https://api.openweathermap.org/data/2.5/forecast?q={city}&appid={OPENWEATHER_API_KEY}&units=metric&lang=ru"
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    data = r.json()
+    parts = data["list"][:5]
+    result = [f"⏳ {item['dt_txt']}: {item['weather'][0]['description']}, {item['main']['temp']}°C" for item in parts]
+    return "
+".join(result)
+
 # --- COMMAND HANDLERS ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Йоу! Напиши мне /w <город>, и я кину тебе прогноз.")
+
+async def forecast(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.args:
+        await update.message.reply_text("Укажи город: /forecast Tokyo")
+        return
+    city = " ".join(context.args)
+    info = get_forecast(city)
+    if info:
+        await update.message.reply_text(f"Шаман Погоды 3000 предвидит:
+{info}")
+    else:
+        await update.message.reply_text("Не удалось заглянуть в будущее...")
 
 async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
@@ -44,6 +68,7 @@ def main():
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("w", weather))
+    app.add_handler(CommandHandler("forecast", forecast))
 
     app.run_polling()
 
