@@ -7,7 +7,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import CommandStart
 
 # Замените на ваш токен
-BOT_TOKEN = '8275812174:AAHGIrL3Uw8AN7TKdNAtUZYFTi0lQu1Ni-A'
+BOT_TOKEN = '8275812174:AAEY3EDh3KTvA1XrgCAnD19QaJcPxWMWQTU'
 PROXY_URL = 'https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt'
 
 bot = Bot(token=BOT_TOKEN)
