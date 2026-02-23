@@ -3,7 +3,7 @@ import random
 import re
 import aiohttp
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import CommandStart, Command
@@ -28,8 +28,6 @@ if not BOT_TOKEN or BOT_TOKEN == "7769789234:AAFGawI5k5k5k5k5k5k5k5k5k5k5k5k5k5k
 bot = Bot(token=BOT_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
-
-user_limits = {}
 
 async def fetch_proxies_github():
     """Загружает прокси с GitHub"""
@@ -87,19 +85,7 @@ async def start_handler(message: types.Message):
 
 @dp.callback_query(lambda c: c.data == "update_proxies")
 async def update_proxies(callback: types.CallbackQuery):
-    """Обработчик кнопки - ПОСЛЕ КАЖДОГО прокси кнопка "connect""""
-    user_id = callback.from_user.id
-    now = datetime.now()
-    
-    # Проверка лимита 24 часа
-    last_update = user_limits.get(user_id)
-    if last_update and now - last_update < timedelta(days=1):
-        time_left = timedelta(days=1) - (now - last_update)
-        hours = int(time_left.total_seconds() // 3600)
-        mins = int((time_left.total_seconds() % 3600) // 60)
-        await callback.answer(f"⏳ Подождите {hours}ч {mins}м!")
-        return
-    
+    """Обработчик кнопки - кнопка "connect" ПОСЛЕ КАЖДОГО прокси"""
     await callback.message.edit_text("⏳ Загружаем свежие прокси...")
     
     proxies = await fetch_all_proxies()
@@ -111,9 +97,9 @@ async def update_proxies(callback: types.CallbackQuery):
     
     # ✅ Кнопка "connect" ПОСЛЕ КАЖДОГО прокси (отдельная строка)
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text=f"connect", url=selected[0])],
-        [InlineKeyboardButton(text=f"connect", url=selected[1])],
-        [InlineKeyboardButton(text=f"connect", url=selected[2])]
+        [InlineKeyboardButton(text="connect", url=selected[0])],
+        [InlineKeyboardButton(text="connect", url=selected[1])],
+        [InlineKeyboardButton(text="connect", url=selected[2])]
     ])
     
     text = "🔥 **3 свежих MTProto прокси:**\n\n"
@@ -123,16 +109,14 @@ async def update_proxies(callback: types.CallbackQuery):
     
     text += "👇 **Кнопка connect после каждого прокси!**"
     
-    user_limits[user_id] = now
     await callback.message.edit_text(text, reply_markup=keyboard, parse_mode="Markdown")
-    await callback.answer("✅ Прокси готовы! Нажмите connect!")
+    await callback.answer("✅ Прокси готовы!")
 
 @dp.message(Command("help"))
 async def help_handler(message: types.Message):
     help_text = (
         "ℹ️ **Инфо:**\n\n"
         "📡 **Источники:** GitHub + mtpro.xyz\n"
-        "⚙️ **Лимит:** 1 раз/сутки\n"
         "🔗 **Кнопки:** connect = tg://proxy\n\n"
         "🔧 **/start** - Меню"
     )
