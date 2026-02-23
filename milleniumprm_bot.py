@@ -90,9 +90,9 @@ async def fetch_all_proxies():
     if github_proxies:
         all_proxies.extend(github_proxies)
         logger.info("✅ Используем GitHub прокси")
-        return list(set(all_proxies))  # Удаляем дубли
+        return list(set(all_proxies))
     
-    # 2. Если GitHub недоступен -> mtpro.xyz
+    # 2. mtpro.xyz
     logger.info("🔄 GitHub недоступен, пробуем mtpro.xyz...")
     mtpro_proxies = await fetch_proxies_mtpro()
     if mtpro_proxies:
@@ -100,7 +100,7 @@ async def fetch_all_proxies():
         logger.info("✅ Используем mtpro.xyz прокси")
         return list(set(all_proxies))
     
-    # 3. Если mtpro.xyz недоступен -> mtproto-ru
+    # 3. mtproto-ru
     logger.info("🔄 mtpro.xyz недоступен, пробуем mtproto-ru...")
     mtpro_ru_proxies = await fetch_proxies_mtpro_ru()
     if mtpro_ru_proxies:
@@ -126,24 +126,28 @@ async def start_handler(message: types.Message):
 
 @dp.callback_query(lambda c: c.data == "update_proxies")
 async def update_proxies(callback: types.CallbackQuery):
-    """Обработчик кнопки"""
+    """Обработчик кнопки - показывает 1, 2 или 3 прокси"""
     await callback.message.edit_text("⏳ Загружаем свежие прокси...")
     
     proxies = await fetch_all_proxies()
-    if len(proxies) < 3:
-        await callback.message.edit_text("❌ Недостаточно прокси. Попробуйте позже.")
+    if not proxies:
+        await callback.message.edit_text("❌ Прокси временно недоступны. Попробуйте позже.")
         return
     
-    selected = random.sample(proxies, 3)
+    # ✅ ПОКАЗЫВАЕМ ВСЕ ДОСТУПНЫЕ ПРОКСИ (1, 2 или 3)
+    available_count = min(len(proxies), 3)
+    selected = random.sample(proxies, available_count)
     
-    # Кнопка "connect" ПОСЛЕ КАЖДОГО прокси
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="connect", url=selected[0])],
-        [InlineKeyboardButton(text="connect", url=selected[1])],
-        [InlineKeyboardButton(text="connect", url=selected[2])]
-    ])
+    # Создаем клавиатуру ДИНАМИЧЕСКИ под количество прокси
+    keyboard_rows = []
+    for proxy in selected:
+        keyboard_rows.append([InlineKeyboardButton(text="connect", url=proxy)])
+    keyboard = InlineKeyboardMarkup(inline_keyboard=keyboard_rows)
     
-    text = "🔥 **3 случайных MTProto прокси:**\n\n"
+    # Динамический текст
+    count_text = f"{available_count} случайных MTProto прокси"
+    text = f"🔥 **{count_text}:**\n\n"
+    
     for i, proxy in enumerate(selected, 1):
         short_link = proxy[:60] + "..." if len(proxy) > 60 else proxy
         text += f"{i}. `{short_link}`\n\n"
