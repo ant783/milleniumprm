@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 BOT_TOKEN = "8275812174:AAEY3EDh3KTvA1XrgCAnD19QaJcPxWMWQTU"  # ← ЗАМЕНИТЕ НА СВОЙ
 
 # ✅ ID АДМИНА-СОЗДАТЕЛЯ (ваш Telegram ID)
-ADMIN_ID = @FBIsocsety  # ← ЗАМЕНИТЕ НА СВОЙ TELEGRAM ID
+ADMIN_ID = 1591887659  # ← ЗАМЕНИТЕ НА СВОЙ TELEGRAM ID
 
 PROXY_URL_GITHUB = 'https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt'
 PROXY_URL_ARGH94 = 'https://raw.githubusercontent.com/Argh94/Proxy-List/refs/heads/main/MTProto.txt'
