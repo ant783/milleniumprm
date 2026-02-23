@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 BOT_TOKEN = "8275812174:AAEY3EDh3KTvA1XrgCAnD19QaJcPxWMWQTU"  # ← ЗАМЕНИТЕ НА СВОЙ
 
 PROXY_URL_GITHUB = 'https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt'
+PROXY_URL_ARGH94 = 'https://raw.githubusercontent.com/Argh94/Proxy-List/refs/heads/main/MTProto.txt'
 PROXY_URL_MTPRO = 'https://mtpro.xyz/'
 PROXY_URL_MTPRO_RU = 'https://mtpro.xyz/mtproto-ru'
 
@@ -30,17 +31,31 @@ storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 
 async def fetch_proxies_github():
-    """Загружает прокси с GitHub"""
+    """Загружает прокси с GitHub SoliSpirit"""
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(PROXY_URL_GITHUB, timeout=aiohttp.ClientTimeout(total=10)) as resp:
                 if resp.status == 200:
                     content = await resp.text()
                     proxies = [line.strip() for line in content.splitlines() if line.strip()]
-                    logger.info(f"✅ GitHub: Загружено {len(proxies)} прокси")
+                    logger.info(f"✅ GitHub SoliSpirit: Загружено {len(proxies)} прокси")
                     return proxies
     except Exception as e:
-        logger.error(f"❌ GitHub недоступен: {e}")
+        logger.error(f"❌ GitHub SoliSpirit недоступен: {e}")
+    return []
+
+async def fetch_proxies_argh94():
+    """Загружает прокси с Argh94"""
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(PROXY_URL_ARGH94, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                if resp.status == 200:
+                    content = await resp.text()
+                    proxies = [line.strip() for line in content.splitlines() if line.strip()]
+                    logger.info(f"✅ Argh94: Загружено {len(proxies)} прокси")
+                    return proxies
+    except Exception as e:
+        logger.error(f"❌ Argh94 недоступен: {e}")
     return []
 
 async def fetch_proxies_mtpro():
@@ -82,25 +97,33 @@ async def fetch_proxies_mtpro_ru():
     return []
 
 async def fetch_all_proxies():
-    """Загружает прокси с fallback логикой"""
+    """Загружает прокси с fallback логикой (4 источника)"""
     all_proxies = []
     
-    # 1. Пробуем GitHub
+    # 1. Пробуем GitHub SoliSpirit
     github_proxies = await fetch_proxies_github()
     if github_proxies:
         all_proxies.extend(github_proxies)
-        logger.info("✅ Используем GitHub прокси")
+        logger.info("✅ Используем GitHub SoliSpirit")
         return list(set(all_proxies))
     
-    # 2. mtpro.xyz
-    logger.info("🔄 GitHub недоступен, пробуем mtpro.xyz...")
+    # 2. Argh94
+    logger.info("🔄 SoliSpirit недоступен, пробуем Argh94...")
+    argh94_proxies = await fetch_proxies_argh94()
+    if argh94_proxies:
+        all_proxies.extend(argh94_proxies)
+        logger.info("✅ Используем Argh94 прокси")
+        return list(set(all_proxies))
+    
+    # 3. mtpro.xyz
+    logger.info("🔄 Argh94 недоступен, пробуем mtpro.xyz...")
     mtpro_proxies = await fetch_proxies_mtpro()
     if mtpro_proxies:
         all_proxies.extend(mtpro_proxies)
         logger.info("✅ Используем mtpro.xyz прокси")
         return list(set(all_proxies))
     
-    # 3. mtproto-ru
+    # 4. mtproto-ru
     logger.info("🔄 mtpro.xyz недоступен, пробуем mtproto-ru...")
     mtpro_ru_proxies = await fetch_proxies_mtpro_ru()
     if mtpro_ru_proxies:
