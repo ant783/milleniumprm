@@ -175,7 +175,7 @@ async def update_proxies(callback: types.CallbackQuery):
 
 @dp.callback_query(lambda c: c.data == "admin_update")
 async def admin_update(callback: types.CallbackQuery):
-    """🔧 АДМИН: Обновить данные с GitHub"""
+    """🔧 АДМИН: Обновить данные"""
     if callback.from_user.id != ADMIN_ID:
         await callback.answer("❌ Доступ только для админа!")
         return
