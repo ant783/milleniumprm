@@ -141,7 +141,7 @@ async def start_handler(message: types.Message):
         keyboard.inline_keyboard.append([InlineKeyboardButton(text="🔧 Админ: Обновить данные", callback_data="admin_update")])
     
     welcome_text = (
-        "👋 **Добро пожаловать!**\n\n"
+        "👋 **Добро пожаловать! (beta version)**\n\n"
         "🔥 **3 случайных MTProto прокси**\n\n"
         "⚡ **Нажмите кнопку ниже и получишь результат!**"
     )
